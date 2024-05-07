@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersRepository } from './repositories/users.repository';
-import { UnauthorizedError } from 'src/common/errors/types/UnauthorizedError';
+import { NotFoundError } from 'src/common/errors/types/NotFoundError';
+import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
@@ -13,12 +14,17 @@ export class UsersService {
   }
 
   findAll() {
-    throw new UnauthorizedError('Não autorizado!');
+    //throw new UnauthorizedError('Não autorizado!');
     return this.repository.findAll();
   }
 
-  findOne(id: number) {
-    return this.repository.findOne(id);
+  async findOne(id: number): Promise<UserEntity> {
+    const user = await this.repository.findOne(id);
+    if (!user) {
+      throw new NotFoundError('Usuário não encontrado!');
+    }
+
+    return user;
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
